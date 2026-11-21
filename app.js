@@ -6,8 +6,10 @@
   const localDay = (date=new Date()) => [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
   const today = () => localDay(new Date());
   const uid = () => globalThis.crypto?.randomUUID?.() || 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  // Public meeting details: https://fitchburgserenityclub.com/zoom-meeting-schedule/
   const DEFAULT_MEETING_URL = 'https://us02web.zoom.us/j/8269797361';
-  const defaults = () => ({version:1,settings:{name:'Michelle',meetingUrl:DEFAULT_MEETING_URL,meetingPasscode:''},gratitude:[],feelings:[],notes:[],tools:[],oraclePulls:[]});
+  const DEFAULT_MEETING_PASSCODE = '54321';
+  const defaults = () => ({version:1,settings:{name:'Michelle',meetingUrl:DEFAULT_MEETING_URL,meetingPasscode:DEFAULT_MEETING_PASSCODE},gratitude:[],feelings:[],notes:[],tools:[],oraclePulls:[]});
   function validData(x){return x && typeof x==='object' && !Array.isArray(x) && ['gratitude','feelings','notes','tools','oraclePulls'].every(k=>Array.isArray(x[k])) && x.settings && typeof x.settings==='object'}
   function load(){
     try {const raw=localStorage.getItem(KEY);if(!raw)return defaults();const v=JSON.parse(raw);if(validData(v))return v;throw Error('unexpected data format')}
@@ -64,7 +66,7 @@
     }
     const latest=[...state.feelings].sort((a,b)=>String(b.at).localeCompare(String(a.at)))[0];
     $('latestFeeling').textContent=latest?'Last check-in: '+latest.words.map(x=>x.word).join(' · '):'No check-in yet. Whenever you feel like it.';
-    $('meetingCaption').textContent=safeUrl(state.settings.meetingUrl || DEFAULT_MEETING_URL)?'Sunrisers · 7:30 AM CT · Join Zoom':'Add a meeting link';
+    $('meetingCaption').textContent=safeUrl(state.settings.meetingUrl || DEFAULT_MEETING_URL)?'Every day · 7:30 AM CT · Code '+(state.settings.meetingPasscode||DEFAULT_MEETING_PASSCODE):'Add a meeting link';
   }
   function safeUrl(url){try{const x=new URL(url);return x.protocol==='https:'?x.href:null}catch{return null}}
   function addGratitude(event,period){
@@ -85,11 +87,11 @@
     if(!url){openDialog('settingsDialog');$('meetingUrl').focus();toast('Set your meeting link to join.');return}
     // Open immediately from the tap so browser popup blockers don't interrupt Zoom.
     window.open(url,'_blank','noopener,noreferrer');
-    const passcode=state.settings.meetingPasscode || '';
+    const passcode=state.settings.meetingPasscode || DEFAULT_MEETING_PASSCODE;
     if(passcode && navigator.clipboard?.writeText){
-      navigator.clipboard.writeText(passcode).then(()=>toast('Passcode copied. Paste it into Zoom if prompted.'),()=>toast('Zoom opened. Enter your saved passcode if prompted.'));
-    }else if(passcode){toast('Zoom opened. Your passcode is saved in Settings.')}
-    else toast('Zoom opened. If prompted, enter the passcode from the meeting host.');
+      navigator.clipboard.writeText(passcode).then(()=>toast('Passcode copied. Paste it into Zoom if prompted.'),()=>toast('Zoom opened. Passcode: '+passcode));
+    }else if(passcode){toast('Zoom opened. Passcode: '+passcode)}
+    else toast('Zoom opened. Use the passcode listed under the button.');
   });
   function setFamily(id){
     currentFamily=families.find(f=>f.id===id);if(!currentFamily)return;
@@ -174,9 +176,9 @@
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeDialog(b.dataset.close)));
   document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
   $('openSettings').addEventListener('click',()=>openDialog('settingsDialog'));
-  function showSettings(){$('displayName').value=state.settings.name||'Michelle';$('meetingUrl').value=state.settings.meetingUrl || DEFAULT_MEETING_URL;$('meetingPasscode').value=state.settings.meetingPasscode||''}
+  function showSettings(){$('displayName').value=state.settings.name||'Michelle';$('meetingUrl').value=state.settings.meetingUrl || DEFAULT_MEETING_URL;$('meetingPasscode').value=state.settings.meetingPasscode||DEFAULT_MEETING_PASSCODE}
   $('openSettings').addEventListener('click',showSettings);
-  $('settingsForm').addEventListener('submit',e=>{e.preventDefault();const raw=$('meetingUrl').value.trim();if(raw&&!safeUrl(raw)){toast('Meeting links need to start with https://');return}const previous={...state.settings};state.settings={name:$('displayName').value.trim()||'friend',meetingUrl:raw || DEFAULT_MEETING_URL,meetingPasscode:$('meetingPasscode').value.trim()};if(!persist())state.settings=previous;else{renderToday();closeDialog('settingsDialog');toast('Settings saved.')}});
+  $('settingsForm').addEventListener('submit',e=>{e.preventDefault();const raw=$('meetingUrl').value.trim();if(raw&&!safeUrl(raw)){toast('Meeting links need to start with https://');return}const previous={...state.settings};state.settings={name:$('displayName').value.trim()||'friend',meetingUrl:raw || DEFAULT_MEETING_URL,meetingPasscode:$('meetingPasscode').value.trim()||DEFAULT_MEETING_PASSCODE};if(!persist())state.settings=previous;else{renderToday();closeDialog('settingsDialog');toast('Settings saved.')}});
   $('exportData').addEventListener('click',()=>{
     const payload=JSON.stringify({format:'a-little-squirrelly-backup-v1',exportedAt:new Date().toISOString(),data:state},null,2);
     const blob=new Blob([payload],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='a-little-squirrelly-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Backup downloaded. Keep it somewhere safe.');

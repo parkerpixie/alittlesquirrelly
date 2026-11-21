@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#55233f">
+  <meta name="description" content="A Little Squirrelly: big feelings, little victories. Gratitude, feelings, tools and a little daily wisdom.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="A Little Squirrelly">
+  <title>A Little Squirrelly</title>
+  <link rel="icon" href="assets/brand-icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="oracle-data.js"></script>
+  <script defer src="oracle-config.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <button class="brand" type="button" data-tab="today" aria-label="Go to Today">
+        <img class="brand-icon" src="assets/brand-icon.svg" alt="">
+        <span><strong>A Little Squirrelly</strong><small>Big feelings. Little victories.</small></span>
+      </button>
+      <button class="icon-button" id="openSettings" type="button" aria-label="Open settings">⚙</button>
+    </header>
+    <main id="main">
+      <section id="screen-today" class="screen active" aria-labelledby="todayTitle">
+        <div class="welcome">
+          <span class="eyebrow" id="todayDate"></span>
+          <h1 id="todayTitle">Hey, Michelle. <span class="hello-mark">✦</span></h1>
+          <p>What's going on in your corner of the world?</p>
+        </div>
+        <div class="card gratitude-card">
+          <div class="card-heading"><span class="eyebrow">☀ MORNING</span><span class="count" id="amCount">0 / 3</span></div>
+          <h2>What's good, even a little?</h2>
+          <form id="amForm" class="entry-row">
+            <input id="amInput" maxlength="220" placeholder="One thing I'm grateful for..." autocomplete="off" aria-label="Morning gratitude">
+            <button type="submit" class="round-plus" aria-label="Add morning gratitude">+</button>
+          </form>
+          <div id="amItems" class="entry-list"></div>
+        </div>
+        <div class="card feature-card">
+          <div><span class="eyebrow">♥ CHECK IN</span><h2>What are you feeling?</h2><p>Something complicated? Close enough counts.</p></div>
+          <button class="button plum" data-tab="feelings" type="button">Open the feelings wheel <span aria-hidden="true">↗</span></button>
+          <p class="latest" id="latestFeeling"></p>
+        </div>
+        <div class="card gratitude-card">
+          <div class="card-heading"><span class="eyebrow">☾ EVENING</span><span class="count" id="pmCount">0 / 3</span></div>
+          <h2>Anything worth keeping?</h2>
+          <form id="pmForm" class="entry-row">
+            <input id="pmInput" maxlength="220" placeholder="A moment I want to remember..." autocomplete="off" aria-label="Evening gratitude">
+            <button type="submit" class="round-plus" aria-label="Add evening gratitude">+</button>
+          </form>
+          <div id="pmItems" class="entry-list"></div>
+        </div>
+        <div class="quick-grid">
+          <button class="quick-tile" id="meetingButton" type="button"><span class="tile-icon">☕</span><strong>My meeting</strong><small id="meetingCaption">Add your Zoom link</small><span class="tile-arrow">↗</span></button>
+          <button class="quick-tile" id="oracleButton" type="button"><span class="tile-icon">✦</span><strong>Oracle cards</strong><small>Pull a little perspective</small><span class="tile-arrow">↗</span></button>
+        </div>
+        <div class="card small-reflection">
+          <span class="eyebrow">✎ ONE THOUGHT</span>
+          <h2>Need to get something out?</h2>
+          <form id="noteForm">
+            <textarea id="noteInput" maxlength="600" rows="2" placeholder="A thought, a rant, a small win..."></textarea>
+            <button class="button outline" type="submit">Keep this thought</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="screen-feelings" class="screen" aria-labelledby="feelingsTitle">
+        <span class="eyebrow">CHECK YOUR VIBE</span>
+        <h1 id="feelingsTitle">What's happening in there?</h1>
+        <p class="subtitle">Spin it, drag it, or tap a feeling. You can stop at any point.</p>
+        <div class="wheel-wrap">
+          <div class="wheel-pointer" aria-hidden="true"></div>
+          <div class="wheel" id="wheel" role="group" aria-label="Choose a feeling family">
+            <button data-family="happy" class="wheel-choice wc-0" type="button">GOOD</button>
+            <button data-family="sad" class="wheel-choice wc-1" type="button">SAD</button>
+            <button data-family="angry" class="wheel-choice wc-2" type="button">ANGRY</button>
+            <button data-family="scared" class="wheel-choice wc-3" type="button">SCARED</button>
+            <button data-family="off" class="wheel-choice wc-4" type="button">OFF</button>
+            <button data-family="surprised" class="wheel-choice wc-5" type="button">SURPRISED</button>
+            <div class="wheel-core">FEEL<br>IT.</div>
+          </div>
+        </div>
+        <button class="text-link" id="spinButton" type="button">⟳ Give it a spin</button>
+        <div class="card" id="feelingDetails">
+          <span class="eyebrow">START SOMEWHERE</span>
+          <h2 id="familyTitle">Tap a feeling on the wheel.</h2>
+          <p class="subtle" id="familyHint">No perfect answer. Just what fits.</p>
+          <div class="chips" id="feelingWords"></div>
+          <div class="selection" id="selectedWords"></div>
+          <form id="feelingForm" hidden>
+            <label class="field-label" for="feelingIntensity">How strong? <span class="optional">(optional)</span></label>
+            <div class="strength" id="intensityChoices">
+              <button type="button" data-intensity="1">1</button><button type="button" data-intensity="2">2</button><button type="button" data-intensity="3">3</button><button type="button" data-intensity="4">4</button><button type="button" data-intensity="5">5</button>
+            </div>
+            <label class="field-label" for="feelingNote">Anything else? <span class="optional">(optional)</span></label>
+            <textarea id="feelingNote" rows="2" maxlength="500" placeholder="No explanation required."></textarea>
+            <button class="button plum" type="submit">Save feeling ✓</button>
+          </form>
+        </div>
+        <div class="card" id="savedFeelingCard" hidden>
+          <span class="eyebrow">NOTICED. SAVED.</span>
+          <h2 id="savedFeelingTitle"></h2>
+          <p>No need to fix it. But if you'd like a little help...</p>
+          <button class="button teal" id="trySuggestedTool" type="button">A tiny next move ↗</button>
+          <button class="text-link" id="againButton" type="button">Check in again</button>
+        </div>
+      </section>
+
+      <section id="screen-tools" class="screen" aria-labelledby="toolsTitle">
+        <span class="eyebrow">YOUR LITTLE TOOLBOX</span>
+        <h1 id="toolsTitle">Need a hand?</h1>
+        <p class="subtitle">No homework. Pick something that might help right now.</p>
+        <div class="tool-grid" id="toolsGrid"></div>
+      </section>
+
+      <section id="screen-days" class="screen" aria-labelledby="daysTitle">
+        <span class="eyebrow">THE GOOD, THE HARD, ALL OF IT</span>
+        <h1 id="daysTitle">My Days</h1>
+        <p class="subtitle">A little evidence of being alive, not a report card.</p>
+        <div class="card calendar-card">
+          <div class="calendar-head"><button id="prevMonth" type="button" aria-label="Previous month">‹</button><h2 id="monthTitle"></h2><button id="nextMonth" type="button" aria-label="Next month">›</button></div>
+          <div class="calendar-grid labels"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+        <div class="card day-card">
+          <h2 id="selectedDayTitle">Today</h2>
+          <div id="selectedDayContent"></div>
+        </div>
+        <div class="card">
+          <span class="eyebrow">WORTH NOTICING</span>
+          <h2>Little patterns</h2>
+          <div id="patterns">As you save a few days, your patterns will show up here.</div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabs" aria-label="Main navigation">
+      <button data-tab="today" class="active" type="button"><span aria-hidden="true">⌂</span><small>Today</small></button>
+      <button data-tab="feelings" type="button"><span aria-hidden="true">◉</span><small>Feelings</small></button>
+      <button data-tab="tools" type="button"><span aria-hidden="true">✳</span><small>Tools</small></button>
+      <button data-tab="days" type="button"><span aria-hidden="true">▦</span><small>My Days</small></button>
+    </nav>
+  </div>
+  <dialog id="toolsDialog" class="sheet"><div class="sheet-inner"><button class="close" data-close="toolsDialog" aria-label="Close" type="button">×</button><span class="eyebrow" id="toolCategory"></span><h2 id="toolName"></h2><p id="toolIntro"></p><div id="toolSteps"></div><button id="finishTool" class="button plum" type="button">I tried this ✓</button><button class="text-link" data-close="toolsDialog" type="button">Not right now</button></div></dialog>
+  <dialog id="oracleDialog" class="sheet"><div class="sheet-inner oracle-sheet"><button class="close" data-close="oracleDialog" aria-label="Close" type="button">×</button><span class="eyebrow">A LITTLE WISDOM</span><h2>Oracle cards</h2><p>Pull a card or browse the whole collection. No pressure to make it profound.</p><button id="drawCardButton" class="button plum" type="button">✦ Pull today's card</button><div id="oracleDaily"></div><div class="oracle-gallery-head"><h3>All 56 cards</h3><small>Tap any card</small></div><div id="oracleGrid" class="oracle-grid"></div></div></dialog>
+  <dialog id="cardDialog" class="sheet card-viewer"><div class="sheet-inner"><button class="close" data-close="cardDialog" aria-label="Close" type="button">×</button><h2 id="cardTitle"></h2><img id="cardImage" alt="Oracle card"><div class="viewer-actions"><button type="button" id="prevCard">‹ Previous</button><button type="button" id="shareCard">Share ↗</button><button type="button" id="nextCard">Next ›</button></div></div></dialog>
+  <dialog id="settingsDialog" class="sheet"><div class="sheet-inner"><button class="close" data-close="settingsDialog" aria-label="Close" type="button">×</button><span class="eyebrow">MAKE IT YOURS</span><h2>Settings</h2><form id="settingsForm"><label class="field-label" for="displayName">What should we call you?</label><input id="displayName" maxlength="48" placeholder="Michelle"><label class="field-label" for="meetingUrl">Your meeting link (Zoom or another HTTPS URL)</label><input id="meetingUrl" type="url" placeholder="https://..." inputmode="url"><p class="subtle">The meeting link stays on this device.</p><button class="button plum" type="submit">Save settings</button></form><hr><h3>Keep your stuff safe</h3><p>Entries live on this device. Export a backup regularly, especially before switching phones.</p><button id="exportData" class="button outline" type="button">↓ Export my backup</button><label class="upload-label" for="importData">↑ Import a backup</label><input type="file" accept="application/json,.json" id="importData"><p class="subtle">Import replaces this app's saved data after confirmation. John's app is never touched.</p><p class="subtle"><strong>Reminders:</strong> Scheduled push reminders aren't supported in this version. Open Today morning or evening whenever it works for you.</p></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

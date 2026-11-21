@@ -250,6 +250,40 @@
     try{if(navigator.share)await navigator.share({title:cardTitle(activeCard)+' · A Little Squirrelly',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);toast('Card link copied.')}else window.open(url,'_blank','noopener,noreferrer')}
     catch(e){if(e.name!=='AbortError')toast('Could not share this card.')}
   });
+  // Home Screen help is separate from personal entries and safe to reopen anytime.
+  const INSTALL_HELP_KEY='a-little-squirrelly:install-help-seen-v1';
+  function installedAsApp(){
+    return window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone===true;
+  }
+  function chooseInstallPlatform(platform){
+    const ios=platform==='ios';
+    $('installIos').setAttribute('aria-pressed',String(ios));
+    $('installAndroid').setAttribute('aria-pressed',String(!ios));
+    $('installIosSteps').hidden=!ios;
+    $('installAndroidSteps').hidden=ios;
+  }
+  function openInstallGuide(){
+    chooseInstallPlatform(/Android/i.test(navigator.userAgent)?'android':'ios');
+    openDialog('installDialog');
+  }
+  function closeInstallGuide(){
+    try{localStorage.setItem(INSTALL_HELP_KEY,'yes')}catch(_){}
+    closeDialog('installDialog');
+  }
+  $('installIos').addEventListener('click',()=>chooseInstallPlatform('ios'));
+  $('installAndroid').addEventListener('click',()=>chooseInstallPlatform('android'));
+  $('openInstallFromToday').addEventListener('click',openInstallGuide);
+  $('openInstallFromSettings').addEventListener('click',openInstallGuide);
+  $('installGotIt').addEventListener('click',closeInstallGuide);
+  $('installLater').addEventListener('click',closeInstallGuide);
+  $('closeInstallDialog').addEventListener('click',closeInstallGuide);
+  $('installDialog').addEventListener('close',()=>{try{localStorage.setItem(INSTALL_HELP_KEY,'yes')}catch(_){}});
+  function shouldOfferInstallGuide(){
+    if(installedAsApp())return false;
+    try{return localStorage.getItem(INSTALL_HELP_KEY)!=='yes'}catch(_){return false}
+  }
+  // Show once on an initial browser visit, not on every page load or installed launch.
+  if(shouldOfferInstallGuide())setTimeout(openInstallGuide,900);
   renderTools();render();showSettings();
   if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
 })();

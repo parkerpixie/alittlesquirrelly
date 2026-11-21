@@ -13,7 +13,7 @@ A mobile-first, gently irreverent little place for Michelle to notice her feelin
 - **Oracle:** All 56 animal cards from Parker's public GrizzlyJohn repository, with full gallery, draw-one-per-day and image viewer.
 
 ## Design
-An urban, hand-drawn squirrel with an adult, creative personality. Plum, berry, teal, ink and warm paper. The full approved artwork belongs to this project but **must be uploaded** under `assets/brand-art.jpg` and `assets/icons/` if not included by deployment; the interface falls back gracefully. The oracle deck artwork is automatically imported by a GitHub workflow on push.
+An urban, hand-drawn squirrel with an adult, creative personality. Plum, berry, teal, ink and warm paper. The app icon includes a lightweight crop of the approved illustrated Chicago squirrel, embedded in `assets/brand-icon.svg`. The complete original artwork can be added later for splash screens, store listings, or a fuller brand system. The oracle deck artwork is automatically imported by a GitHub workflow on push; the initial import successfully completed.
 
 ## Data & privacy
 Everything entered by Michelle stays in **this browser's local storage**. No account, ad tracking, analytics or hosted private database. To move devices or protect entries, use **Settings → Export backup**, and use **Import backup** to restore. Because local data can disappear when browser storage is cleared, exporting a backup matters. No private GrizzlyJohn entries are copied.
@@ -24,6 +24,6 @@ Meeting URL is optional and entered in Settings. Browser reminders when the app 
 Open `index.html` in a browser, or publish the repository as a static site in Netlify (`publish = "."`). Install from the phone browser via Add to Home Screen.
 
 ## Oracle art
-The full card inventory is in `assets/oracle/cards.json`. `scripts/sync-oracle.py` downloads the 56 public PNG assets from `parkerpixie/GrizzlyJohn` into this repo without touching John's saved data. A GitHub Actions workflow is configured to import them automatically when this repository receives the initial app code. Until they are locally available, cards fall back to public GrizzlyJohn image URLs.
+The full card inventory is in `assets/oracle/cards.json`. `scripts/sync-oracle.py` downloads the 56 public PNG assets from `parkerpixie/GrizzlyJohn` into this repo without touching John's saved data. A GitHub Actions workflow is configured to import them automatically when this repository receives the initial app code. The 56 card PNGs are now copied into `assets/oracle/` and loaded locally.
 
 Original ideas adapted from SideQuest, Porter Daily Hub, Open Chair and GrizzlyJohn, with a stripped-down experience for Michelle.

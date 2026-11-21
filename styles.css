@@ -61,3 +61,26 @@
 /* A clear secondary route if a phone blocks Zoom's legacy app URL protocol. */
 .zoom-backup{display:block;margin:9px 2px 15px;text-align:center;font-size:.78rem;line-height:1.5;color:var(--teal);text-underline-offset:3px;font-weight:700}
 .zoom-backup:focus-visible{outline:3px solid #d08790;border-radius:6px}
+
+/* First-visit Home Screen guide: optional, readable, and friendly on small phones. */
+.install-reminder{display:block;width:100%;margin:4px 0 16px;padding:10px 14px;background:#f0e4ea;border:1px solid #decad6;color:var(--plum);border-radius:13px;font-weight:750;font-size:.86rem;text-align:left}
+.install-reminder span{float:right}
+.install-settings-button{display:block;margin:13px 0 18px;width:100%;white-space:normal}
+.install-sheet .sheet-inner{max-height:calc(100dvh - 30px);overflow-y:auto;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.install-hero{display:flex;gap:13px;align-items:center;padding-right:12px;margin:12px 0 20px}
+.install-hero img{width:82px;height:82px;object-fit:contain;flex:none;border-radius:20px;background:#f2e6e6}
+.install-hero h2{font-size:1.75rem;line-height:1.05;margin:4px 0 8px}
+.install-hero p{font-size:.89rem;line-height:1.45}
+.install-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 14px}
+.install-switch button{padding:11px 5px;border-radius:12px;border:1px solid var(--edge);background:#faf4f2;color:var(--plum);font-size:.89rem;font-weight:800}
+.install-switch button[aria-pressed="true"]{background:var(--plum);color:white;border-color:var(--plum)}
+.install-instructions{padding:5px 13px 10px;background:#fbf7f1;border:1px solid var(--edge);border-radius:14px}
+.install-instructions[hidden]{display:none}
+.install-instructions>p{font-size:.91rem;margin:8px 0}
+.install-instructions ol{margin:6px 0 9px;padding-left:23px}
+.install-instructions li{margin:9px 0;line-height:1.45;font-size:.92rem}
+.install-instructions .subtle{font-size:.78rem}
+.install-note{font-size:.83rem;margin:13px 2px 16px}
+.install-done{width:100%}
+.install-later{display:block;margin:12px auto 0}
+@media(max-width:365px){.install-hero img{width:64px;height:64px}.install-hero h2{font-size:1.48rem}.install-switch button{font-size:.8rem}.install-sheet .sheet-inner{padding-left:14px;padding-right:14px}}

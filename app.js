@@ -6,7 +6,8 @@
   const localDay = (date=new Date()) => [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
   const today = () => localDay(new Date());
   const uid = () => globalThis.crypto?.randomUUID?.() || 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2);
-  const defaults = () => ({version:1,settings:{name:'Michelle',meetingUrl:''},gratitude:[],feelings:[],notes:[],tools:[],oraclePulls:[]});
+  const DEFAULT_MEETING_URL = 'https://us02web.zoom.us/j/8269797361';
+  const defaults = () => ({version:1,settings:{name:'Michelle',meetingUrl:DEFAULT_MEETING_URL,meetingPasscode:''},gratitude:[],feelings:[],notes:[],tools:[],oraclePulls:[]});
   function validData(x){return x && typeof x==='object' && !Array.isArray(x) && ['gratitude','feelings','notes','tools','oraclePulls'].every(k=>Array.isArray(x[k])) && x.settings && typeof x.settings==='object'}
   function load(){
     try {const raw=localStorage.getItem(KEY);if(!raw)return defaults();const v=JSON.parse(raw);if(validData(v))return v;throw Error('unexpected data format')}
@@ -63,7 +64,7 @@
     }
     const latest=[...state.feelings].sort((a,b)=>String(b.at).localeCompare(String(a.at)))[0];
     $('latestFeeling').textContent=latest?'Last check-in: '+latest.words.map(x=>x.word).join(' · '):'No check-in yet. Whenever you feel like it.';
-    $('meetingCaption').textContent=safeUrl(state.settings.meetingUrl)?'One tap to join':'Add your Zoom link';
+    $('meetingCaption').textContent=safeUrl(state.settings.meetingUrl || DEFAULT_MEETING_URL)?'Sunrisers · 7:30 AM CT · Join Zoom':'Add a meeting link';
   }
   function safeUrl(url){try{const x=new URL(url);return x.protocol==='https:'?x.href:null}catch{return null}}
   function addGratitude(event,period){
@@ -79,7 +80,17 @@
     if(!confirm('Remove this gratitude entry?'))return;const old=state.gratitude.splice(index,1)[0];if(!persist())state.gratitude.splice(index,0,old);render();
   });
   $('noteForm').addEventListener('submit',e=>{e.preventDefault();const t=$('noteInput').value.trim();if(t&&addTo('notes',{id:uid(),day:today(),text:t,at:new Date().toISOString()})){$('noteInput').value='';toast('Kept safe in My Days.')}});
-  $('meetingButton').addEventListener('click',()=>{const url=safeUrl(state.settings.meetingUrl);if(!url){openDialog('settingsDialog');$('meetingUrl').focus();toast('Add your meeting link once, then it is one tap.');return}window.open(url,'_blank','noopener,noreferrer')});
+  $('meetingButton').addEventListener('click',()=>{
+    const url=safeUrl(state.settings.meetingUrl || DEFAULT_MEETING_URL);
+    if(!url){openDialog('settingsDialog');$('meetingUrl').focus();toast('Set your meeting link to join.');return}
+    // Open immediately from the tap so browser popup blockers don't interrupt Zoom.
+    window.open(url,'_blank','noopener,noreferrer');
+    const passcode=state.settings.meetingPasscode || '';
+    if(passcode && navigator.clipboard?.writeText){
+      navigator.clipboard.writeText(passcode).then(()=>toast('Passcode copied. Paste it into Zoom if prompted.'),()=>toast('Zoom opened. Enter your saved passcode if prompted.'));
+    }else if(passcode){toast('Zoom opened. Your passcode is saved in Settings.')}
+    else toast('Zoom opened. If prompted, enter the passcode from the meeting host.');
+  });
   function setFamily(id){
     currentFamily=families.find(f=>f.id===id);if(!currentFamily)return;
     const image=$('feelingFamilyArt');image.src=GRAPHICS+feelingArt[id];image.hidden=false;
@@ -145,15 +156,16 @@
     state.feelings.filter(x=>x.day===chosenDay).forEach(x=>timeline.push({at:x.at,label:'FEELING',value:x.words.map(y=>y.word).join(' · ')+(x.intensity?' (intensity '+x.intensity+'/5)':'')+(x.note?'\n'+x.note:'')}));
     state.notes.filter(x=>x.day===chosenDay).forEach(x=>timeline.push({at:x.at,label:'THOUGHT',value:x.text}));
     state.tools.filter(x=>x.day===chosenDay).forEach(x=>timeline.push({at:x.at,label:'TOOL TRIED',value:tools.find(t=>t.id===x.toolId)?.name||x.toolId}));
-    state.oraclePulls.filter(x=>x.day===chosenDay).forEach(x=>timeline.push({at:x.at||'',label:'ORACLE',value:cardTitle(x.index)}));
+    state.oraclePulls.filter(x=>x.day===chosenDay).forEach(x=>timeline.push({at:x.at||'',label:'ORACLE CARD',value:cardTitle(x.index),cardIndex:x.index}));
     timeline.sort((a,b)=>String(a.at).localeCompare(String(b.at)));
-    $('selectedDayContent').innerHTML=timeline.length?'<div class="timeline">'+timeline.map(t=>'<div class="timeline-item"><strong>'+safe(t.label)+'</strong><p>'+safe(t.value)+'</p></div>').join('')+'</div>':'<div class="empty illustrated-empty"><img src="assets/graphics/empty-state.png" alt="" loading="lazy"><span>No notes here. Blank days are allowed.</span></div>';
+    $('selectedDayContent').innerHTML=timeline.length?'<div class="timeline">'+timeline.map(t=>'<div class="timeline-item"><strong>'+safe(t.label)+'</strong><p>'+safe(t.value)+'</p>'+(Number.isInteger(t.cardIndex)?'<button type="button" class="history-card-button" data-history-card="'+t.cardIndex+'">View this card ↗</button>':'')+'</div>').join('')+'</div>':'<div class="empty illustrated-empty"><img src="assets/graphics/empty-state.png" alt="" loading="lazy"><span>No notes here. Blank days are allowed.</span></div>';
     const days=new Set([...state.gratitude,...state.feelings,...state.notes,...state.tools].map(x=>x.day));
     const count=state.feelings.length;
     if(!count&&!state.gratitude.length){$('patterns').innerHTML='<p class="subtle">Give it some time. There is no score to chase.</p>';return}
     const counts={};state.feelings.forEach(f=>f.words.forEach(x=>counts[x.word]=(counts[x.word]||0)+1));const common=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([name,num])=>name+' ('+num+')');
     $('patterns').innerHTML='<p class="subtle">'+days.size+' day'+(days.size===1?'':'s')+' with entries · '+state.gratitude.length+' gratitude notes · '+state.feelings.length+' feeling check-ins.</p>'+(common.length?'<p style="margin-top:9px"><strong>Feelings you have named:</strong> '+safe(common.join(', '))+'.</p>':'')+'<p class="subtle" style="margin-top:8px">Just observations, not labels or conclusions.</p>';
   }
+  $('selectedDayContent').addEventListener('click',e=>{const b=e.target.closest('[data-history-card]');if(!b)return;const i=Number(b.dataset.historyCard);if(state.oraclePulls.some(x=>x.day===chosenDay&&x.index===i))openCard(i)});
   $('calendarGrid').addEventListener('click',e=>{const b=e.target.closest('[data-date]');if(b){chosenDay=b.dataset.date;renderDays()}});
   function moveMonth(delta){const [year,mon]=month.split('-').map(Number),d=new Date(year,mon-1+delta,1);month=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');chosenDay=month+'-01';renderDays()}
   $('prevMonth').addEventListener('click',()=>moveMonth(-1));$('nextMonth').addEventListener('click',()=>moveMonth(1));
@@ -162,9 +174,9 @@
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeDialog(b.dataset.close)));
   document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
   $('openSettings').addEventListener('click',()=>openDialog('settingsDialog'));
-  function showSettings(){$('displayName').value=state.settings.name||'Michelle';$('meetingUrl').value=state.settings.meetingUrl||''}
+  function showSettings(){$('displayName').value=state.settings.name||'Michelle';$('meetingUrl').value=state.settings.meetingUrl || DEFAULT_MEETING_URL;$('meetingPasscode').value=state.settings.meetingPasscode||''}
   $('openSettings').addEventListener('click',showSettings);
-  $('settingsForm').addEventListener('submit',e=>{e.preventDefault();const raw=$('meetingUrl').value.trim();if(raw&&!safeUrl(raw)){toast('Meeting links need to start with https://');return}const previous={...state.settings};state.settings={name:$('displayName').value.trim()||'friend',meetingUrl:raw};if(!persist())state.settings=previous;else{renderToday();closeDialog('settingsDialog');toast('Settings saved.')}});
+  $('settingsForm').addEventListener('submit',e=>{e.preventDefault();const raw=$('meetingUrl').value.trim();if(raw&&!safeUrl(raw)){toast('Meeting links need to start with https://');return}const previous={...state.settings};state.settings={name:$('displayName').value.trim()||'friend',meetingUrl:raw || DEFAULT_MEETING_URL,meetingPasscode:$('meetingPasscode').value.trim()};if(!persist())state.settings=previous;else{renderToday();closeDialog('settingsDialog');toast('Settings saved.')}});
   $('exportData').addEventListener('click',()=>{
     const payload=JSON.stringify({format:'a-little-squirrelly-backup-v1',exportedAt:new Date().toISOString(),data:state},null,2);
     const blob=new Blob([payload],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='a-little-squirrelly-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Backup downloaded. Keep it somewhere safe.');
@@ -184,23 +196,31 @@
   function cardTitle(index){return String(cards[index]||'Your card').replace(/\.(png|jpe?g|webp)$/i,'').replace(/\s*\(\d*\)/g,'').replace(/\(\)/g,'').replace(/\s+-\s+/,' · ').replace(/\s+/g,' ').trim()}
   function dailyPull(){return state.oraclePulls.find(x=>x.day===today())}
   function renderOracle(){
-    $('oracleGrid').innerHTML=cards.map((name,i)=>'<button type="button" class="oracle-thumb" data-card="'+i+'"><img src="'+safe(cardUrl(i))+'" alt="" loading="lazy"><strong>'+safe(cardTitle(i).split(' · ')[0])+'</strong></button>').join('');
     const saved=dailyPull();
-    $('oracleDaily').innerHTML=saved?'<div class="oracle-daily"><button type="button" data-card="'+saved.index+'"><img src="'+safe(cardUrl(saved.index))+'" alt="'+safe(cardTitle(saved.index))+'"><strong>Today: '+safe(cardTitle(saved.index))+'</strong></button></div>':'';
-    $('drawCardButton').textContent=saved?'✦ Open today\'s card':'✦ Pull today\'s card';
+    $('oracleDaily').innerHTML=saved?'<div class="oracle-daily"><button type="button" data-card="'+saved.index+'"><img src="'+safe(cardUrl(saved.index))+'" alt="'+safe(cardTitle(saved.index))+'"><strong>Today: '+safe(cardTitle(saved.index))+'</strong><span>Tap to open again</span></button></div>':'';
+    $('drawCardButton').textContent=saved?'✦ View today\'s card':'✦ Reveal today\'s card';
   }
   $('oracleButton').addEventListener('click',()=>{renderOracle();openDialog('oracleDialog')});
   $('drawCardButton').addEventListener('click',()=>{
-    if(!cards.length){toast('The card deck could not be loaded.');return}
+    if(!cards.length){toast('The oracle deck could not be loaded.');return}
     let saved=dailyPull();
-    if(!saved){const index=Math.floor(Math.random()*cards.length);saved={id:uid(),day:today(),index,at:new Date().toISOString()};if(!addTo('oraclePulls',saved))return}
+    if(!saved){
+      const index=Math.floor(Math.random()*cards.length);
+      saved={id:uid(),day:today(),index,at:new Date().toISOString()};
+      if(!addTo('oraclePulls',saved))return;
+    }
     renderOracle();openCard(saved.index);
   });
-  $('oracleGrid').addEventListener('click',e=>{const b=e.target.closest('[data-card]');if(b)openCard(Number(b.dataset.card))});
-  $('oracleDaily').addEventListener('click',e=>{const b=e.target.closest('[data-card]');if(b)openCard(Number(b.dataset.card))});
-  function openCard(index){if(!Number.isInteger(index)||index<0||index>=cards.length)return;activeCard=index;$('cardTitle').textContent=cardTitle(index);$('cardImage').src=cardUrl(index);$('cardImage').alt=cardTitle(index);openDialog('cardDialog')}
-  $('prevCard').addEventListener('click',()=>openCard((activeCard+cards.length-1)%cards.length));
-  $('nextCard').addEventListener('click',()=>openCard((activeCard+1)%cards.length));
+  $('oracleDaily').addEventListener('click',e=>{const b=e.target.closest('[data-card]');if(b&&dailyPull()?.index===Number(b.dataset.card))openCard(Number(b.dataset.card))});
+  function openCard(index){
+    if(!Number.isInteger(index)||index<0||index>=cards.length)return;
+    if(!state.oraclePulls.some(x=>x.index===index))return;
+    activeCard=index;
+    $('cardTitle').textContent=cardTitle(index);
+    $('cardImage').src=cardUrl(index);
+    $('cardImage').alt=cardTitle(index);
+    openDialog('cardDialog');
+  }
   $('shareCard').addEventListener('click',async()=>{
     const url=cardUrl(activeCard);
     try{if(navigator.share)await navigator.share({title:cardTitle(activeCard)+' · A Little Squirrelly',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);toast('Card link copied.')}else window.open(url,'_blank','noopener,noreferrer')}

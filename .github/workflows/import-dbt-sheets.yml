@@ -1,0 +1,43 @@
+name: Import original DBT skill worksheets
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/import-dbt-sheets.yml'
+permissions:
+  contents: write
+jobs:
+  import-sheets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download original PNGs from GrizzlyJohn
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p assets/skills
+          python3 - <<'PY'
+          import urllib.request, urllib.parse, pathlib
+          files = ['ABC Please Skill.png','Cope Ahead Skill.png','DEAR MAN Skill.png','FAST Skill.png','GIVE Skill.png','How Skill.png','IMPROVE Skill.png','Opposite Action Skill.png','Problem Solving Skill.png','Radical Acceptance Skill.png','What Skill.png','STOP Skill.png','Check The Facts Skill.png','TIPP Skill.png','Self Soothe Skill.png','WISE MIND Skill.png']
+          for name in files:
+              url='https://raw.githubusercontent.com/parkerpixie/GrizzlyJohn/main/'+urllib.parse.quote(name)
+              data=urllib.request.urlopen(url,timeout=45).read()
+              if not data.startswith(b'\\x89PNG\\r\\n\\x1a\\n'): raise ValueError('Not a PNG: '+name)
+              (pathlib.Path('assets/skills')/name).write_bytes(data)
+          name='HALT Skill.png'
+          url='https://raw.githubusercontent.com/parkerpixie/GrizzlyJohn/main/graphics/'+urllib.parse.quote(name)
+          data=urllib.request.urlopen(url,timeout=45).read()
+          if not data.startswith(b'\\x89PNG\\r\\n\\x1a\\n'): raise ValueError('Not a PNG: HALT')
+          (pathlib.Path('assets/skills')/name).write_bytes(data)
+          PY
+      - name: Commit images to Michelle's repository
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/skills
+          if ! git diff --cached --quiet; then
+            git commit -m 'Import original DBT skill PNGs from GrizzlyJohn'
+            git push
+          fi

@@ -67,6 +67,7 @@
     const latest=[...state.feelings].sort((a,b)=>String(b.at).localeCompare(String(a.at)))[0];
     $('latestFeeling').textContent=latest?'Last check-in: '+latest.words.map(x=>x.word).join(' · '):'No check-in yet. Whenever you feel like it.';
     $('meetingCaption').textContent=safeUrl(state.settings.meetingUrl || DEFAULT_MEETING_URL)?'Every day · 7:30 AM CT · Code '+(state.settings.meetingPasscode||DEFAULT_MEETING_PASSCODE):'Add a meeting link';
+    const meeting=meetingJoinDetails();if(meeting)$('zoomBackupLink').href=meeting.url;
   }
   function safeUrl(url){try{const x=new URL(url);return x.protocol==='https:'?x.href:null}catch{return null}}
   function addGratitude(event,period){
@@ -82,16 +83,37 @@
     if(!confirm('Remove this gratitude entry?'))return;const old=state.gratitude.splice(index,1)[0];if(!persist())state.gratitude.splice(index,0,old);render();
   });
   $('noteForm').addEventListener('submit',e=>{e.preventDefault();const t=$('noteInput').value.trim();if(t&&addTo('notes',{id:uid(),day:today(),text:t,at:new Date().toISOString()})){$('noteInput').value='';toast('Kept safe in My Days.')}});
-  $('meetingButton').addEventListener('click',()=>{
+  function meetingJoinDetails(){
     const url=safeUrl(state.settings.meetingUrl || DEFAULT_MEETING_URL);
-    if(!url){openDialog('settingsDialog');$('meetingUrl').focus();toast('Set your meeting link to join.');return}
-    // Open immediately from the tap so browser popup blockers don't interrupt Zoom.
-    window.open(url,'_blank','noopener,noreferrer');
+    if(!url)return null;
+    const parsed=new URL(url);
+    // Custom non-Zoom links still open normally.
+    const isZoom=parsed.hostname==='zoom.us' || parsed.hostname.endsWith('.zoom.us');
+    const parts=parsed.pathname.split('/').filter(Boolean);
+    const meetingId=isZoom && parts.length===2 && parts[0]==='j' &&
+      parts[1].length>0 && [...parts[1]].every(ch=>ch>='0'&&ch<='9')?parts[1]:null;
     const passcode=state.settings.meetingPasscode || DEFAULT_MEETING_PASSCODE;
-    if(passcode && navigator.clipboard?.writeText){
-      navigator.clipboard.writeText(passcode).then(()=>toast('Passcode copied. Paste it into Zoom if prompted.'),()=>toast('Zoom opened. Passcode: '+passcode));
-    }else if(passcode){toast('Zoom opened. Passcode: '+passcode)}
-    else toast('Zoom opened. Use the passcode listed under the button.');
+    return {url,meetingId,passcode};
+  }
+  function isMobileZoomDevice(){
+    const agent=navigator.userAgent || '';
+    return /Android|iPhone|iPad|iPod/i.test(agent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  }
+  $('meetingButton').addEventListener('click',()=>{
+    const details=meetingJoinDetails();
+    if(!details){openDialog('settingsDialog');$('meetingUrl').focus();toast('Set your meeting link to join.');return}
+    if(!details.meetingId){
+      window.open(details.url,'_blank','noopener,noreferrer');
+      toast('Opening your saved meeting link.');
+      return;
+    }
+    // Zoom's legacy native URL protocol is not officially supported.
+    // Use a direct user tap; keep the standard HTTPS link available below.
+    // HTTPS invitation ?pwd= values are encoded tokens, not raw passcodes.
+    const scheme=isMobileZoomDevice()?'zoomus':'zoommtg';
+    const deepLink=scheme+'://zoom.us/join?confno='+encodeURIComponent(details.meetingId)+'&pwd='+encodeURIComponent(details.passcode);
+    window.location.href=deepLink;
+    toast('Trying the Zoom app. If it does not launch, use the regular link below.');
   });
   function setFamily(id){
     currentFamily=families.find(f=>f.id===id);if(!currentFamily)return;

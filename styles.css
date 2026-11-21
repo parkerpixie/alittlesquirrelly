@@ -84,3 +84,10 @@
 .install-done{width:100%}
 .install-later{display:block;margin:12px auto 0}
 @media(max-width:365px){.install-hero img{width:64px;height:64px}.install-hero h2{font-size:1.48rem}.install-switch button{font-size:.8rem}.install-sheet .sheet-inner{padding-left:14px;padding-right:14px}}
+
+/* Keep mobile navigation accessible above Netlify's injected promotional badge. */
+@media (max-width: 649px) {
+  .tabs { bottom: 76px; }
+  .app { padding-bottom: 205px; }
+  .toast { bottom: 175px; }
+}

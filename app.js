@@ -58,26 +58,44 @@
     // Rotate one gentle, slightly cheeky, name-free greeting each day and time of day.
     // The same greeting stays put during a session rather than changing on every render.
     const greetings=hour<12?[
-      'Good morning, tiny chaos goblin. ☕',
-      'Rise and mildly shine. 🐿️',
-      'Coffee first. Feelings second. ☕',
-      'Morning! The squirrels are judging no one.',
-      'A fresh day. Same fabulous weirdness.',
-      'Good morning. No acorns required.'
+      'Rise and mildly shine, you magnificent squirrel. ☕',
+      'Good morning. Coffee, chaos, and character defects.',
+      'One day at a time. One acorn at a time. 🐿️',
+      'Morning, gorgeous. Let us not make this weird. Yet.',
+      'Just for today, we are minding our own damn acorns.',
+      'A little gratitude before the world gets mouthy.',
+      'Good morning! Your squirrel sponsor approves. Probably.',
+      'Wake up and be a tiny bit unreasonable. ☕',
+      'Serenity now. Caffeine immediately.',
+      'Good morning. Progress, not squirrelfection.',
+      'The squirrels have convened. You are doing fine.',
+      'Another 24 hours. Another chance to be delightfully odd.'
     ]:hour<17?[
-      'Good afternoon, fellow earthling. ✦',
-      'Afternoon report: still delightfully squirrelly.',
-      'A little progress counts. Even sideways.',
-      'Hello, afternoon. Be nice for once.',
-      'The squirrels approve of a snack break.',
-      'Good afternoon. Existing is plenty.'
+      'Good afternoon. Are we being dramatic or hydrated?',
+      'Plot twist: the squirrel has boundaries. 🐿️',
+      'Easy does it, you fabulous disaster magnet.',
+      'Not every circus needs your squirrel. ✦',
+      'HALT check: hungry, angry, lonely, or just DONE?',
+      'Afternoon reminder: other people are not your acorns.',
+      'Keep coming back. The snacks are better here.',
+      'You cannot control the nuts. Just your own stash.',
+      'Do the next right thing. Then maybe get fries.',
+      'Good afternoon. The audacity is complimentary.',
+      'Have we tried serenity? Or a dramatic little walk?',
+      'A meeting, a snack, or a nap. Choose your fighter.'
     ]:[
-      'Good evening, lovely weirdo. 🌙',
-      'Evening shift: pajamas and perspective.',
-      'You survived another day. The squirrels applaud.',
-      'Good evening. Let the nonsense rest.',
-      'Rest mode: officially encouraged. ✦',
-      'The day is done. Put down the acorns.'
+      'Good evening, you glorious little nutcase. 🌙',
+      'Put the day down. You cannot carry every acorn.',
+      'Even squirrels need to shut the hell down sometimes.',
+      'Tonight we practice letting go. Aggressively.',
+      'You made it through today. That is not nothing. 💜',
+      'Good evening. Time to retire from managing the universe.',
+      'Turn down the chaos. Turn up the cozy.',
+      'One day at a time. Pajamas at a reasonable hour.',
+      'Take what you need. Leave the rest for the squirrels.',
+      'Evening inventory: feelings felt, acorns optional.',
+      'The squirrels voted. You are off duty.',
+      'Rest is not a moral failing, you fabulous weirdo.'
     ];
     const dayNumber=Math.floor(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/86400000);
     $('todayTitle').textContent=greetings[((dayNumber%greetings.length)+greetings.length)%greetings.length];

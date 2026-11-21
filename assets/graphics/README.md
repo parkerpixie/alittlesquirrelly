@@ -29,4 +29,4 @@ Keep each filename unchanged. This includes:
 - tool-self-soothe.png
 - tool-wise-mind.png
 
-**Don't move or delete** existing files in `assets/oracle/`, `assets/icons/`, or `assets/brand-icon.svg`. Those power the existing app. We will update the app to load these new PNGs from `assets/graphics/` once uploaded.
+**Don't move or delete** existing files in `assets/oracle/`, `assets/icons/`, or `assets/brand-icon.svg`. Those power the existing app. The app now loads all 25 expected illustration files from `assets/graphics/`, and the phone home-screen icons are generated from `app-icon-1024.png`. The three extra Cozy Squirrel images are preserved as optional artwork.

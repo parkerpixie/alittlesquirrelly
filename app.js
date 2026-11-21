@@ -202,10 +202,27 @@
     $('toolsGrid').innerHTML=tools.map(t=>'<button class="tool-tile" type="button" data-tool="'+safe(t.id)+'"><img class="tool-graphic" src="'+GRAPHICS+toolArt[t.id]+'" alt="" loading="lazy"><span><strong>'+safe(t.name)+'</strong><small>'+safe(t.when)+'</small></span><span class="arrow">›</span></button>').join('');
   }
   $('toolsGrid').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b)openTool(b.dataset.tool)});
+  // Full-size worksheets exported from the original Canva skill designs in GrizzlyJohn.
+  const detailedSheets = {
+    stop:'STOP Skill.png', halt:'graphics/HALT Skill.png', facts:'Check The Facts Skill.png',
+    tipp:'TIPP Skill.png', soothe:'Self Soothe Skill.png', wise:'WISE MIND Skill.png'
+  };
+  const sheetBase='https://raw.githubusercontent.com/parkerpixie/GrizzlyJohn/main/';
   function openTool(id){
     const t=tools.find(x=>x.id===id);if(!t)return;currentTool=t;
     $('toolCategory').textContent='ONE LITTLE NEXT MOVE';$('toolName').textContent=t.name;$('toolIllustration').src=GRAPHICS+toolArt[t.id];$('toolIntro').textContent=t.intro;
     $('toolSteps').innerHTML=t.steps.map((s,i)=>'<div class="tool-step"><strong>'+String(i+1)+'.</strong> '+safe(s)+'</div>').join('');
+    let sheetLink=$('fullSkillSheet');
+    if(!sheetLink){
+      sheetLink=document.createElement('a');sheetLink.id='fullSkillSheet';
+      sheetLink.className='button outline';sheetLink.target='_blank';sheetLink.rel='noopener noreferrer';
+      sheetLink.style.margin='14px 0 10px';
+      $('finishTool').parentNode.insertBefore(sheetLink,$('finishTool'));
+    }
+    if(detailedSheets[id]){
+      sheetLink.href=sheetBase+detailedSheets[id].split('/').map(encodeURIComponent).join('/');
+      sheetLink.textContent='📖 View the full illustrated skill guide ↗';sheetLink.hidden=false;
+    }else{sheetLink.hidden=true;sheetLink.removeAttribute('href')}
     openDialog('toolsDialog');
   }
   $('finishTool').addEventListener('click',()=>{if(!currentTool)return;const name=currentTool.name;if(addTo('tools',{id:uid(),day:today(),toolId:currentTool.id,at:new Date().toISOString()})){closeDialog('toolsDialog');toast(name+' saved. One little victory.')}});

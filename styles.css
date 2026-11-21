@@ -57,3 +57,7 @@
 /* Daily oracle cards are revealed individually, never as a browsable deck. */
 .history-card-button{border:0;border-radius:10px;background:#e8f0ef;color:#286f72;font-weight:800;font-size:.8rem;margin-top:9px;padding:8px 12px}
 .oracle-daily button span{display:block;margin:0 4px 6px;color:#286f72;font-size:.8rem;font-weight:750}
+
+/* A clear secondary route if a phone blocks Zoom's legacy app URL protocol. */
+.zoom-backup{display:block;margin:9px 2px 15px;text-align:center;font-size:.78rem;line-height:1.5;color:var(--teal);text-underline-offset:3px;font-weight:700}
+.zoom-backup:focus-visible{outline:3px solid #d08790;border-radius:6px}

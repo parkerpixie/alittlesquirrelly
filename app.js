@@ -42,7 +42,7 @@
   function navigate(tab){
     document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id==='screen-'+tab));
     document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
-    window.scrollTo({top:0,behavior:'instant'});
+    window.scrollTo({top:0,behavior:'auto'});
     if(tab==='days')renderDays();if(tab==='today')renderToday();
   }
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));

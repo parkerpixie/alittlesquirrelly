@@ -64,6 +64,7 @@
           <button class="quick-tile" id="oracleButton" type="button"><span class="tile-icon">✦</span><strong>Daily oracle</strong><small>One card, just for today</small><span class="tile-arrow">↗</span></button>
         </div>
         <a class="zoom-backup" id="zoomBackupLink" href="https://us02web.zoom.us/j/8269797361" target="_blank" rel="noopener noreferrer">Zoom app didn't open? Use the regular meeting link ↗</a>
+        <button class="install-reminder" id="openInstallFromToday" type="button">🐿️ Add A Little Squirrelly to your Home Screen <span aria-hidden="true">↗</span></button>
         <div class="card small-reflection">
           <span class="eyebrow">✎ ONE THOUGHT</span>
           <h2>Need to get something out?</h2>
@@ -157,7 +158,46 @@
   <dialog id="toolsDialog" class="sheet"><div class="sheet-inner"><button class="close" data-close="toolsDialog" aria-label="Close" type="button">×</button><span class="eyebrow" id="toolCategory"></span><h2 id="toolName"></h2><img id="toolIllustration" class="tool-dialog-art" alt=""><p id="toolIntro"></p><div id="toolSteps"></div><button id="finishTool" class="button plum" type="button">I tried this ✓</button><button class="text-link" data-close="toolsDialog" type="button">Not right now</button></div></dialog>
   <dialog id="oracleDialog" class="sheet"><div class="sheet-inner oracle-sheet"><button class="close" data-close="oracleDialog" aria-label="Close" type="button">×</button><span class="eyebrow">A LITTLE WISDOM</span><h2>Your daily oracle</h2><p>One card a day. Your draw is saved to My Days, so you can come back to it later.</p><button id="drawCardButton" class="button plum" type="button">✦ Reveal today's card</button><div id="oracleDaily"></div></div></dialog>
   <dialog id="cardDialog" class="sheet card-viewer"><div class="sheet-inner"><button class="close" data-close="cardDialog" aria-label="Close" type="button">×</button><h2 id="cardTitle"></h2><img id="cardImage" alt="Oracle card"><div class="viewer-actions"><button type="button" id="shareCard">Share this card ↗</button></div></div></dialog>
-  <dialog id="settingsDialog" class="sheet"><div class="sheet-inner"><button class="close" data-close="settingsDialog" aria-label="Close" type="button">×</button><img class="settings-brand" src="assets/graphics/logo-horizontal-transparent.png" alt="A Little Squirrelly, Big feelings. Little victories."><span class="eyebrow">MAKE IT YOURS</span><h2>Settings</h2><form id="settingsForm"><label class="field-label" for="displayName">What should we call you?</label><input id="displayName" maxlength="48" placeholder="Michelle"><label class="field-label" for="meetingUrl">Morning AA Zoom link</label><input id="meetingUrl" type="url" placeholder="https://..." inputmode="url"><p class="subtle">Sunrisers is already linked. You can change the address here.</p><label class="field-label" for="meetingPasscode">Meeting passcode</label><input id="meetingPasscode" type="text" inputmode="numeric" autocomplete="off" placeholder="54321"><p class="subtle">Preloaded from the <a href="https://fitchburgserenityclub.com/zoom-meeting-schedule/" target="_blank" rel="noopener noreferrer">Fitchburg Serenity Club public schedule</a>. When you tap Join, the app opens Zoom and tries to copy this passcode so you can paste it if prompted. You can still change it here.</p><button class="button plum" type="submit">Save settings</button></form><hr><h3>Keep your stuff safe</h3><p>Entries live on this device. Export a backup regularly, especially before switching phones.</p><button id="exportData" class="button outline" type="button">↓ Export my backup</button><label class="upload-label" for="importData">↑ Import a backup</label><input type="file" accept="application/json,.json" id="importData"><p class="subtle">Import replaces this app's saved data after confirmation. John's app is never touched.</p><p class="subtle"><strong>Reminders:</strong> Scheduled push reminders aren't supported in this version. Open Today morning or evening whenever it works for you.</p></div></dialog>
+  <dialog id="settingsDialog" class="sheet"><div class="sheet-inner"><button class="close" data-close="settingsDialog" aria-label="Close" type="button">×</button><img class="settings-brand" src="assets/graphics/logo-horizontal-transparent.png" alt="A Little Squirrelly, Big feelings. Little victories."><span class="eyebrow">MAKE IT YOURS</span><h2>Settings</h2><button class="button outline install-settings-button" id="openInstallFromSettings" type="button">📲 How to add this app to my Home Screen</button><form id="settingsForm"><label class="field-label" for="displayName">What should we call you?</label><input id="displayName" maxlength="48" placeholder="Michelle"><label class="field-label" for="meetingUrl">Morning AA Zoom link</label><input id="meetingUrl" type="url" placeholder="https://..." inputmode="url"><p class="subtle">Sunrisers is already linked. You can change the address here.</p><label class="field-label" for="meetingPasscode">Meeting passcode</label><input id="meetingPasscode" type="text" inputmode="numeric" autocomplete="off" placeholder="54321"><p class="subtle">Preloaded from the <a href="https://fitchburgserenityclub.com/zoom-meeting-schedule/" target="_blank" rel="noopener noreferrer">Fitchburg Serenity Club public schedule</a>. When you tap Join, the app opens Zoom and tries to copy this passcode so you can paste it if prompted. You can still change it here.</p><button class="button plum" type="submit">Save settings</button></form><hr><h3>Keep your stuff safe</h3><p>Entries live on this device. Export a backup regularly, especially before switching phones.</p><button id="exportData" class="button outline" type="button">↓ Export my backup</button><label class="upload-label" for="importData">↑ Import a backup</label><input type="file" accept="application/json,.json" id="importData"><p class="subtle">Import replaces this app's saved data after confirmation. John's app is never touched.</p><p class="subtle"><strong>Reminders:</strong> Scheduled push reminders aren't supported in this version. Open Today morning or evening whenever it works for you.</p></div></dialog>
+  <dialog id="installDialog" class="sheet install-sheet" aria-labelledby="installTitle">
+    <div class="sheet-inner">
+      <button class="close" id="closeInstallDialog" type="button" aria-label="Close installation instructions">×</button>
+      <div class="install-hero">
+        <img src="assets/graphics/app-icon-1024.png" alt="" width="90" height="90">
+        <div><span class="eyebrow">YOUR LITTLE POCKET SQUIRREL</span>
+          <h2 id="installTitle">Take me with you! 🐿️</h2>
+          <p>Put A Little Squirrelly on your phone's Home Screen. It opens just like an app, with no app store needed.</p>
+        </div>
+      </div>
+      <div class="install-switch" role="group" aria-label="Choose your phone">
+        <button type="button" id="installIos" aria-pressed="true">🍎 iPhone / iPad</button>
+        <button type="button" id="installAndroid" aria-pressed="false">🤖 Android</button>
+      </div>
+      <div id="installIosSteps" class="install-instructions">
+        <p><strong>Using Safari on iPhone or iPad:</strong></p>
+        <ol>
+          <li>Open <strong>A Little Squirrelly</strong> in <strong>Safari</strong> (not inside Facebook or another app).</li>
+          <li>Tap <strong>Share</strong> <span aria-hidden="true">□↑</span>. On newer iPhones, tap the page menu or <strong>•••</strong> first, then <strong>Share</strong>.</li>
+          <li>Scroll and tap <strong>Add to Home Screen</strong>.</li>
+          <li>If shown, choose <strong>Open as Web App</strong>, then tap <strong>Add</strong>.</li>
+        </ol>
+        <p class="subtle">Don't see Add to Home Screen? Scroll farther in the Share menu, or open this site directly in Safari.</p>
+      </div>
+      <div id="installAndroidSteps" class="install-instructions" hidden>
+        <p><strong>Using Chrome on Android:</strong></p>
+        <ol>
+          <li>Open <strong>A Little Squirrelly</strong> in <strong>Chrome</strong>.</li>
+          <li>Tap the <strong>three-dot menu ⋮</strong> at the top right.</li>
+          <li>Choose <strong>Add to Home screen</strong> or <strong>Install app</strong>.</li>
+          <li>Tap <strong>Install</strong> or <strong>Add</strong> to confirm.</li>
+        </ol>
+        <p class="subtle">If Chrome offers an Install button directly, you can use that instead.</p>
+      </div>
+      <p class="install-note">💜 Your squirrel will have its own icon on your Home Screen. Keep using the same installed app to see your saved days.</p>
+      <button class="button plum install-done" id="installGotIt" type="button">Got it! 💜</button>
+      <button class="text-link install-later" id="installLater" type="button">Maybe later</button>
+    </div>
+  </dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

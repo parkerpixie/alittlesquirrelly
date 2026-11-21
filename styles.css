@@ -53,3 +53,7 @@
   .days-art{width:113px;height:113px}
   #screen-days>.subtitle{min-height:76px}
 }
+
+/* Daily oracle cards are revealed individually, never as a browsable deck. */
+.history-card-button{border:0;border-radius:10px;background:#e8f0ef;color:#286f72;font-weight:800;font-size:.8rem;margin-top:9px;padding:8px 12px}
+.oracle-daily button span{display:block;margin:0 4px 6px;color:#286f72;font-size:.8rem;font-weight:750}

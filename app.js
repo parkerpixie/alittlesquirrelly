@@ -54,8 +54,33 @@
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));
   function render(){renderToday();renderDays()}
   function renderToday(){
-    const d=new Date();const hour=d.getHours();const name=(state.settings.name||'friend').trim();
-    $('todayTitle').textContent='Good '+(hour<12?'morning':hour<17?'afternoon':'evening')+', '+name+'. ✦';
+    const d=new Date();const hour=d.getHours();
+    // Rotate one gentle, slightly cheeky, name-free greeting each day and time of day.
+    // The same greeting stays put during a session rather than changing on every render.
+    const greetings=hour<12?[
+      'Good morning, tiny chaos goblin. ☕',
+      'Rise and mildly shine. 🐿️',
+      'Coffee first. Feelings second. ☕',
+      'Morning! The squirrels are judging no one.',
+      'A fresh day. Same fabulous weirdness.',
+      'Good morning. No acorns required.'
+    ]:hour<17?[
+      'Good afternoon, fellow earthling. ✦',
+      'Afternoon report: still delightfully squirrelly.',
+      'A little progress counts. Even sideways.',
+      'Hello, afternoon. Be nice for once.',
+      'The squirrels approve of a snack break.',
+      'Good afternoon. Existing is plenty.'
+    ]:[
+      'Good evening, lovely weirdo. 🌙',
+      'Evening shift: pajamas and perspective.',
+      'You survived another day. The squirrels applaud.',
+      'Good evening. Let the nonsense rest.',
+      'Rest mode: officially encouraged. ✦',
+      'The day is done. Put down the acorns.'
+    ];
+    const dayNumber=Math.floor(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/86400000);
+    $('todayTitle').textContent=greetings[((dayNumber%greetings.length)+greetings.length)%greetings.length];
     $('todayDate').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
     for(const period of ['am','pm']){
       const items=state.gratitude.filter(g=>g.day===today()&&g.period===period);

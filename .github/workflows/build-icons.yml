@@ -2,7 +2,7 @@ name: Generate illustrated app icons
 on:
   push:
     paths:
-      - "assets/brand-icon.svg"
+      - "assets/graphics/app-icon-1024.png"
       - "scripts/build-icons.py"
       - ".github/workflows/build-icons.yml"
   workflow_dispatch:

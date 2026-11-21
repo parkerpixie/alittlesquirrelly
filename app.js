@@ -35,6 +35,9 @@
     {id:'soothe',name:'Self Soothe',icon:'♥',when:'When you need a little comfort.',intro:'Comfort is not something you have to earn.',steps:['Choose one sense: sight, sound, touch, smell or taste.','Find one safe, pleasant sensation nearby.','Stay with it for a few breaths.','What would a kind next step look like?']},
     {id:'wise',name:'Wise Mind',icon:'✦',when:'When heart and head disagree.',intro:'Your feelings and your facts both get a seat at the table.',steps:['What is your feeling saying?','What does your practical side know?','What action respects both, even imperfectly?']}
   ];
+  const GRAPHICS = 'assets/graphics/';
+  const feelingArt = {happy:'feelings-good.png',sad:'feelings-sad.png',angry:'feelings-angry.png',scared:'feelings-scared.png',off:'feelings-off.png',surprised:'feelings-surprised.png'};
+  const toolArt = {stop:'tool-stop.png',halt:'tool-halt.png',rain:'tool-rain.png',facts:'tool-check-facts.png',tipp:'tool-tipp.png',ground:'tool-grounding.png',soothe:'tool-self-soothe.png',wise:'tool-wise-mind.png'};
   const recommended={
     Panicked:'tipp',Overwhelmed:'tipp','Burned out':'halt',Tired:'halt',Numb:'ground',Scattered:'halt',Furious:'stop',Frustrated:'stop',Resentful:'facts',Anxious:'ground',Overthinking:'facts',Worried:'facts',Guilty:'rain',Lonely:'soothe',Hurt:'rain',Unseen:'rain',Stuck:'wise',Confused:'wise',Grieving:'soothe',Disappointed:'rain'
   };
@@ -79,6 +82,7 @@
   $('meetingButton').addEventListener('click',()=>{const url=safeUrl(state.settings.meetingUrl);if(!url){openDialog('settingsDialog');$('meetingUrl').focus();toast('Add your meeting link once, then it is one tap.');return}window.open(url,'_blank','noopener,noreferrer')});
   function setFamily(id){
     currentFamily=families.find(f=>f.id===id);if(!currentFamily)return;
+    const image=$('feelingFamilyArt');image.src=GRAPHICS+feelingArt[id];image.hidden=false;
     $('familyTitle').textContent=currentFamily.label+' can mean a lot.';
     $('familyHint').textContent=currentFamily.hint;
     $('feelingWords').innerHTML=currentFamily.words.map(w=>'<button class="chip '+(chosenWords.some(x=>x.word===w)?'selected':'')+'" type="button" data-word="'+safe(w)+'">'+safe(w)+'</button>').join('');
@@ -107,7 +111,7 @@
       $('savedFeelingCard').scrollIntoView({behavior:'smooth',block:'start'});toast('Feeling saved. That is enough.');
     }
   });
-  function resetFeeling(){chosenWords=[];intensity=null;currentFamily=null;$('feelingDetails').hidden=false;$('savedFeelingCard').hidden=true;$('familyTitle').textContent='Tap a feeling on the wheel.';$('familyHint').textContent='No perfect answer. Just what fits.';$('feelingWords').innerHTML='';$('selectedWords').innerHTML='';$('feelingForm').hidden=true;$('feelingNote').value='';document.querySelectorAll('[data-family],[data-intensity]').forEach(b=>b.classList.remove('selected'))}
+  function resetFeeling(){chosenWords=[];intensity=null;currentFamily=null;$('feelingDetails').hidden=false;$('savedFeelingCard').hidden=true;$('familyTitle').textContent='Tap a feeling on the wheel.';$('familyHint').textContent='No perfect answer. Just what fits.';$('feelingWords').innerHTML='';$('selectedWords').innerHTML='';$('feelingFamilyArt').hidden=true;$('feelingForm').hidden=true;$('feelingNote').value='';document.querySelectorAll('[data-family],[data-intensity]').forEach(b=>b.classList.remove('selected'))}
   $('againButton').addEventListener('click',resetFeeling);
   $('trySuggestedTool').addEventListener('click',()=>openTool(lastTool));
   const wheel=$('wheel');
@@ -117,12 +121,12 @@
   wheel.addEventListener('pointermove',e=>{if(!pointerDown)return;const a=Math.atan2(e.clientY-pointerDown.cy,e.clientX-pointerDown.cx)*180/Math.PI;rotateWheel(pointerDown.rotation+a-pointerDown.angle)});
   wheel.addEventListener('pointerup',()=>{if(!pointerDown)return;pointerDown=null;wheel.style.transition='transform .6s cubic-bezier(.2,.75,.15,1)';const idx=((Math.round((-wheelRotation%360)/60)%6)+6)%6;setFamily(families[idx].id)});
   function renderTools(){
-    $('toolsGrid').innerHTML=tools.map(t=>'<button class="tool-tile" type="button" data-tool="'+safe(t.id)+'"><span class="tool-emoji">'+t.icon+'</span><span><strong>'+safe(t.name)+'</strong><small>'+safe(t.when)+'</small></span><span class="arrow">›</span></button>').join('');
+    $('toolsGrid').innerHTML=tools.map(t=>'<button class="tool-tile" type="button" data-tool="'+safe(t.id)+'"><img class="tool-graphic" src="'+GRAPHICS+toolArt[t.id]+'" alt="" loading="lazy"><span><strong>'+safe(t.name)+'</strong><small>'+safe(t.when)+'</small></span><span class="arrow">›</span></button>').join('');
   }
   $('toolsGrid').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b)openTool(b.dataset.tool)});
   function openTool(id){
     const t=tools.find(x=>x.id===id);if(!t)return;currentTool=t;
-    $('toolCategory').textContent='ONE LITTLE NEXT MOVE';$('toolName').textContent=t.name;$('toolIntro').textContent=t.intro;
+    $('toolCategory').textContent='ONE LITTLE NEXT MOVE';$('toolName').textContent=t.name;$('toolIllustration').src=GRAPHICS+toolArt[t.id];$('toolIntro').textContent=t.intro;
     $('toolSteps').innerHTML=t.steps.map((s,i)=>'<div class="tool-step"><strong>'+String(i+1)+'.</strong> '+safe(s)+'</div>').join('');
     openDialog('toolsDialog');
   }
@@ -143,7 +147,7 @@
     state.tools.filter(x=>x.day===chosenDay).forEach(x=>timeline.push({at:x.at,label:'TOOL TRIED',value:tools.find(t=>t.id===x.toolId)?.name||x.toolId}));
     state.oraclePulls.filter(x=>x.day===chosenDay).forEach(x=>timeline.push({at:x.at||'',label:'ORACLE',value:cardTitle(x.index)}));
     timeline.sort((a,b)=>String(a.at).localeCompare(String(b.at)));
-    $('selectedDayContent').innerHTML=timeline.length?'<div class="timeline">'+timeline.map(t=>'<div class="timeline-item"><strong>'+safe(t.label)+'</strong><p>'+safe(t.value)+'</p></div>').join('')+'</div>':'<div class="empty">No notes here. Blank days are allowed.</div>';
+    $('selectedDayContent').innerHTML=timeline.length?'<div class="timeline">'+timeline.map(t=>'<div class="timeline-item"><strong>'+safe(t.label)+'</strong><p>'+safe(t.value)+'</p></div>').join('')+'</div>':'<div class="empty illustrated-empty"><img src="assets/graphics/empty-state.png" alt="" loading="lazy"><span>No notes here. Blank days are allowed.</span></div>';
     const days=new Set([...state.gratitude,...state.feelings,...state.notes,...state.tools].map(x=>x.day));
     const count=state.feelings.length;
     if(!count&&!state.gratitude.length){$('patterns').innerHTML='<p class="subtle">Give it some time. There is no score to chase.</p>';return}

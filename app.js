@@ -202,7 +202,7 @@
     $('toolsGrid').innerHTML=tools.map(t=>'<button class="tool-tile" type="button" data-tool="'+safe(t.id)+'"><img class="tool-graphic" src="'+GRAPHICS+toolArt[t.id]+'" alt="" loading="lazy"><span><strong>'+safe(t.name)+'</strong><small>'+safe(t.when)+'</small></span><span class="arrow">›</span></button>').join('');
   }
   $('toolsGrid').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b)openTool(b.dataset.tool)});
-  // Full-size worksheets exported from the original Canva skill designs in GrizzlyJohn.
+  // Full-size worksheets are bundled with the app or hosted in GrizzlyJohn.
   const detailedSheets = {
     stop:'STOP Skill.png', halt:'graphics/HALT Skill.png', facts:'Check The Facts Skill.png',
     tipp:'TIPP Skill.png', soothe:'Self Soothe Skill.png', wise:'WISE MIND Skill.png'
@@ -219,8 +219,11 @@
       sheetLink.style.margin='14px 0 10px';
       $('finishTool').parentNode.insertBefore(sheetLink,$('finishTool'));
     }
-    if(detailedSheets[id]){
-      sheetLink.href=sheetBase+detailedSheets[id].split('/').map(encodeURIComponent).join('/');
+    const sheetPath=id==='rain'
+      ? GRAPHICS+'rain-skill-guide.png'
+      : detailedSheets[id] && sheetBase+detailedSheets[id].split('/').map(encodeURIComponent).join('/');
+    if(sheetPath){
+      sheetLink.href=sheetPath;
       sheetLink.textContent='📖 View the full illustrated skill guide ↗';sheetLink.hidden=false;
     }else{sheetLink.hidden=true;sheetLink.removeAttribute('href')}
     openDialog('toolsDialog');

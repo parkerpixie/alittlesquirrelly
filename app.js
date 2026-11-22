@@ -34,9 +34,20 @@
     {id:'rain',name:'RAIN',icon:'☔',when:'When a feeling deserves some compassion.',intro:'Recognize, Allow, Investigate, Nurture. You may skip any part.',steps:['Recognize: what is here right now?','Allow: can this feeling exist for a moment without a fight?','Investigate gently: what might this feeling need? Skip if it is too much.','Nurture: what kindness can you offer yourself?']},
     {id:'facts',name:'Check the Facts',icon:'🔎',when:'When your brain is writing a whole screenplay.',intro:'A feeling is real. The story around it might be incomplete.',steps:['What happened that someone else could observe?','Which parts are your interpretation or prediction?','What do you not know yet?','What response would fit the facts you actually have?']},
     {id:'tipp',name:'TIPP (gentle)',icon:'🌊',when:'When feelings feel very intense.',intro:'A body-first reset. Pick what is safe and comfortable; avoid extreme temperatures or strenuous movement.',steps:['Try a cool cloth on your face or hands if comfortable.','Move gently for a minute, if that feels safe.','Let your exhale be a little longer than your inhale.','Unclench your jaw and relax your shoulders. Notice what changes.']},
-    {id:'ground',name:'5–4–3–2–1',icon:'◉',when:'When you want to return to right now.',intro:'Use your senses to reconnect with the present.',steps:['Name five things you can see.','Name four things you can feel.','Name three things you can hear.','Name two things you can smell.','Name one thing you can taste, or something you like about this moment.']},
+    {id:'ground',name:'5–4–3–2–1 Grounding',icon:'◉',when:'When you want to return to right now.',intro:'Use your senses to reconnect with the present.',steps:['Name five things you can see.','Name four things you can feel.','Name three things you can hear.','Name two things you can smell.','Name one thing you can taste, or something you like about this moment.']},
     {id:'soothe',name:'Self Soothe',icon:'♥',when:'When you need a little comfort.',intro:'Comfort is not something you have to earn.',steps:['Choose one sense: sight, sound, touch, smell or taste.','Find one safe, pleasant sensation nearby.','Stay with it for a few breaths.','What would a kind next step look like?']},
-    {id:'wise',name:'Wise Mind',icon:'✦',when:'When heart and head disagree.',intro:'Your feelings and your facts both get a seat at the table.',steps:['What is your feeling saying?','What does your practical side know?','What action respects both, even imperfectly?']}
+    {id:'wise',name:'Wise Mind',icon:'✦',when:'When heart and head disagree.',intro:'Your feelings and your facts both get a seat at the table.',steps:['What is your feeling saying?','What does your practical side know?','What action respects both, even imperfectly?']},
+    {id:'abc-please',name:'ABC PLEASE',sheet:'ABC Please Skill.png',when:'To build everyday resilience.',steps:['Make room for a pleasant activity.','Practice something that builds confidence.','Plan for a hard moment and make time for basic care.']},
+    {id:'cope-ahead',name:'Cope Ahead',sheet:'Cope Ahead Skill.png',when:'Before a situation you expect to be hard.',steps:['Picture the situation and what might be difficult.','Choose a skill or response you want to try.','Mentally rehearse using it.']},
+    {id:'dear-man',name:'DEAR MAN',sheet:'DEAR MAN Skill.png',when:'When you need to ask for something or say no.',steps:['Describe the facts and express how you feel.','Ask clearly for what you want and explain why it would help.','Stay on topic, speak confidently, and consider a workable compromise.']},
+    {id:'fast',name:'FAST',sheet:'FAST Skill.png',when:'When you want to keep your self-respect in a conversation.',steps:['Be fair to yourself and the other person.','Save apologies for when one is warranted.','Stick to your values and be truthful.']},
+    {id:'give',name:'GIVE',sheet:'GIVE Skill.png',when:'When the relationship matters in a conversation.',steps:['Be gentle in your words and tone.','Show interest and listen.','Validate what makes sense about their experience and use an easy manner.']},
+    {id:'how',name:'HOW Skills',sheet:'How Skill.png',when:'When you want to practice mindfulness.',steps:['Describe what is happening without judging it.','Give one thing your full attention.','Choose what works in this moment.']},
+    {id:'improve',name:'IMPROVE',sheet:'IMPROVE Skill.png',when:'When you need to get through a difficult moment.',steps:['Try comforting imagery, meaning, or a quiet reflection.','Relax your shoulders and focus on one thing at a time.','Take a brief break or offer yourself an encouraging phrase.']},
+    {id:'opposite-action',name:'Opposite Action',sheet:'Opposite Action Skill.png',when:'When acting on an urge would make things worse.',steps:['Name the feeling and what it urges you to do.','Check whether acting on that urge fits the facts and would help.','If it would not help, choose a safe action in the opposite direction.']},
+    {id:'problem-solving',name:'Problem Solving',sheet:'Problem Solving Skill.png',when:'When there is a practical problem you can change.',steps:['Describe the problem and choose a realistic goal.','List a few options and pick one to try.','Take the first step and see what changes.']},
+    {id:'radical-acceptance',name:'Radical Acceptance',sheet:'Radical Acceptance Skill.png',when:'When you are facing a reality you cannot change right now.',steps:['Name the facts of the situation as they are.','Notice how it feels to acknowledge them.','Choose one action you can take from where you are.']},
+    {id:'what',name:'WHAT Skills',sheet:'What Skill.png',when:'When you want to be present for what is happening.',steps:['Observe what you notice.','Describe it in words.','Participate fully in what you are doing.']}
   ];
   const GRAPHICS = 'assets/graphics/';
   const feelingArt = {happy:'feelings-good.png',sad:'feelings-sad.png',angry:'feelings-angry.png',scared:'feelings-scared.png',off:'feelings-off.png',surprised:'feelings-surprised.png'};
@@ -198,8 +209,11 @@
   wheel.addEventListener('pointerdown',e=>{if(e.target.closest('[data-family]'))return;const box=wheel.getBoundingClientRect();pointerDown={x:e.clientX,y:e.clientY,cx:box.left+box.width/2,cy:box.top+box.height/2,angle:Math.atan2(e.clientY-(box.top+box.height/2),e.clientX-(box.left+box.width/2))*180/Math.PI,rotation:wheelRotation};wheel.setPointerCapture(e.pointerId);wheel.style.transition='none'});
   wheel.addEventListener('pointermove',e=>{if(!pointerDown)return;const a=Math.atan2(e.clientY-pointerDown.cy,e.clientX-pointerDown.cx)*180/Math.PI;rotateWheel(pointerDown.rotation+a-pointerDown.angle)});
   wheel.addEventListener('pointerup',()=>{if(!pointerDown)return;pointerDown=null;wheel.style.transition='transform .6s cubic-bezier(.2,.75,.15,1)';const idx=((Math.round((-wheelRotation%360)/60)%6)+6)%6;setFamily(families[idx].id)});
+  function toolImage(tool){
+    return toolArt[tool.id] ? GRAPHICS+toolArt[tool.id] : sheetBase+encodeURIComponent(tool.sheet);
+  }
   function renderTools(){
-    $('toolsGrid').innerHTML=tools.map(t=>'<button class="tool-tile" type="button" data-tool="'+safe(t.id)+'"><img class="tool-graphic" src="'+GRAPHICS+toolArt[t.id]+'" alt="" loading="lazy"><span><strong>'+safe(t.name)+'</strong><small>'+safe(t.when)+'</small></span><span class="arrow">›</span></button>').join('');
+    $('toolsGrid').innerHTML=tools.map(t=>'<button class="tool-tile" type="button" data-tool="'+safe(t.id)+'"><img class="tool-graphic" src="'+toolImage(t)+'" alt="" loading="lazy"><span><strong>'+safe(t.name)+'</strong><small>'+safe(t.when)+'</small></span><span class="arrow">›</span></button>').join('');
   }
   $('toolsGrid').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b)openTool(b.dataset.tool)});
   // Full-size worksheets are bundled with the app or hosted in GrizzlyJohn.
@@ -207,10 +221,11 @@
     stop:'STOP Skill.png', halt:'graphics/HALT Skill.png', facts:'Check The Facts Skill.png',
     tipp:'TIPP Skill.png', soothe:'Self Soothe Skill.png', wise:'WISE MIND Skill.png'
   };
+  const localSheets={rain:'rain-skill-guide.png',ground:'grounding-skill-guide.png'};
   const sheetBase='https://raw.githubusercontent.com/parkerpixie/GrizzlyJohn/main/';
   function openTool(id){
     const t=tools.find(x=>x.id===id);if(!t)return;currentTool=t;
-    $('toolCategory').textContent='ONE LITTLE NEXT MOVE';$('toolName').textContent=t.name;$('toolIllustration').src=GRAPHICS+toolArt[t.id];$('toolIntro').textContent=t.intro;
+    $('toolCategory').textContent='ONE LITTLE NEXT MOVE';$('toolName').textContent=t.name;$('toolIllustration').src=toolImage(t);$('toolIntro').textContent=t.intro||t.when;
     $('toolSteps').innerHTML=t.steps.map((s,i)=>'<div class="tool-step"><strong>'+String(i+1)+'.</strong> '+safe(s)+'</div>').join('');
     let sheetLink=$('fullSkillSheet');
     if(!sheetLink){
@@ -219,9 +234,10 @@
       sheetLink.style.margin='14px 0 10px';
       $('finishTool').parentNode.insertBefore(sheetLink,$('finishTool'));
     }
-    const sheetPath=id==='rain'
-      ? GRAPHICS+'rain-skill-guide.png'
-      : detailedSheets[id] && sheetBase+detailedSheets[id].split('/').map(encodeURIComponent).join('/');
+    const remoteSheet=t.sheet||detailedSheets[id];
+    const sheetPath=localSheets[id]
+      ? GRAPHICS+localSheets[id]
+      : remoteSheet && sheetBase+remoteSheet.split('/').map(encodeURIComponent).join('/');
     if(sheetPath){
       sheetLink.href=sheetPath;
       sheetLink.textContent='📖 View the full illustrated skill guide ↗';sheetLink.hidden=false;

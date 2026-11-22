@@ -16,7 +16,7 @@
     catch(e){alert('Your saved data could not be read safely. This app will not overwrite it. Please export your browser data before making changes.');return null}
   }
   let state=load();if(!state)return;
-  let month=today().slice(0,7), chosenDay=today(), currentFamily=null, chosenWords=[], intensity=null, lastTool='halt', activeCard=0, currentTool=null, wheelRotation=0, pointerDown=null;
+  let month=today().slice(0,7), chosenDay=today(), currentFamily=null, chosenWords=[], intensity=null, lastTool='halt', currentTool=null, wheelRotation=0, pointerDown=null;
   function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch(e){toast('Could not save on this device. Please check your storage.');return false}}
   function addTo(collection,record){state[collection].push(record);if(!persist()){state[collection].pop();return false}render();return true}
   function toast(message){const el=$('toast');el.textContent=message;el.classList.add('visible');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('visible'),3400)}
@@ -335,19 +335,56 @@
     renderOracle();openCard(saved.index);
   });
   $('oracleDaily').addEventListener('click',e=>{const b=e.target.closest('[data-card]');if(b&&dailyPull()?.index===Number(b.dataset.card))openCard(Number(b.dataset.card))});
+  let cardShareFile = null;
+  let cardShareRequest = 0;
   function openCard(index){
     if(!Number.isInteger(index)||index<0||index>=cards.length)return;
     if(!state.oraclePulls.some(x=>x.index===index))return;
-    activeCard=index;
     $('cardTitle').textContent=cardTitle(index);
     $('cardImage').src=cardUrl(index);
     $('cardImage').alt=cardTitle(index);
+    prepareCardShare(index);
     openDialog('cardDialog');
   }
+  // Prepare the file before the tap so native sharing retains user activation.
+  async function prepareCardShare(index){
+    const button = $('shareCard');
+    const request = ++cardShareRequest;
+    cardShareFile = null;
+    button.disabled = true;
+    try {
+      const response = await fetch(cardUrl(index));
+      if (!response.ok) throw new Error('Card image unavailable');
+      const blob = await response.blob();
+      if (!blob.type.startsWith('image/') || !blob.size) throw new Error('Invalid card image');
+      if (request === cardShareRequest) cardShareFile = new File([blob], cards[index], {type:blob.type});
+    } catch {
+      // The button can explain the issue once preparation finishes.
+    } finally {
+      if (request === cardShareRequest) button.disabled = false;
+    }
+  }
   $('shareCard').addEventListener('click',async()=>{
-    const url=cardUrl(activeCard);
-    try{if(navigator.share)await navigator.share({title:cardTitle(activeCard)+' · A Little Squirrelly',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);toast('Card link copied.')}else window.open(url,'_blank','noopener,noreferrer')}
-    catch(e){if(e.name!=='AbortError')toast('Could not share this card.')}
+    if (!cardShareFile){
+      toast('Could not load the card image. Reopen the card to try again.');
+      return;
+    }
+    const payload = {files:[cardShareFile]};
+    try {
+      if (navigator.share && navigator.canShare?.(payload)){
+        await navigator.share(payload);
+        return;
+      }
+      const url = URL.createObjectURL(cardShareFile);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = cardShareFile.name;
+      link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+      toast('Card image downloaded.');
+    } catch (error) {
+      if (error.name !== 'AbortError') toast('Could not share this card.');
+    }
   });
   // Home Screen help is separate from personal entries and safe to reopen anytime.
   const INSTALL_HELP_KEY='a-little-squirrelly:install-help-seen-v1';

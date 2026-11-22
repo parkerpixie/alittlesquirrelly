@@ -51,7 +51,27 @@
   ];
   const GRAPHICS = 'assets/graphics/';
   const feelingArt = {happy:'feelings-good.png',sad:'feelings-sad.png',angry:'feelings-angry.png',scared:'feelings-scared.png',off:'feelings-off.png',surprised:'feelings-surprised.png'};
-  const toolArt = {stop:'tool-stop.png',halt:'tool-halt.png',rain:'tool-rain.png',facts:'tool-check-facts.png',tipp:'tool-tipp.png',ground:'tool-grounding.png',soothe:'tool-self-soothe.png',wise:'tool-wise-mind.png'};
+  const toolArt = {
+    stop:'tool-stop.png',
+    halt:'tool-halt.png',
+    rain:'tool-rain.png',
+    facts:'tool-check-facts.png',
+    tipp:'tool-tipp.png',
+    ground:'tool-grounding.png',
+    soothe:'tool-self-soothe.png',
+    wise:'tool-wise-mind.png',
+    'abc-please':'tool-abc-please.png',
+    'cope-ahead':'tool-cope-ahead.png',
+    'dear-man':'tool-dear-man.png',
+    'fast':'tool-fast.png',
+    'give':'tool-give.png',
+    'improve':'tool-improve.png',
+    'opposite-action':'tool-opposite-action.png',
+    'problem-solving':'tool-problem-solving.png',
+    'radical-acceptance':'tool-radical-acceptance.png',
+    how:'tool-how-skills.png',
+    what:'tool-what-skills.png'
+  };
   const recommended={
     Panicked:'tipp',Overwhelmed:'tipp','Burned out':'halt',Tired:'halt',Numb:'ground',Scattered:'halt',Furious:'stop',Frustrated:'stop',Resentful:'facts',Anxious:'ground',Overthinking:'facts',Worried:'facts',Guilty:'rain',Lonely:'soothe',Hurt:'rain',Unseen:'rain',Stuck:'wise',Confused:'wise',Grieving:'soothe',Disappointed:'rain'
   };
